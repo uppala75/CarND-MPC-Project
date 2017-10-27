@@ -23,7 +23,7 @@ const double Lf = 2.67;
 
 double ref_cte = 0;
 double ref_epsi = 0;
-double ref_v = 75; //80 works fine but gets too close to the edge after the bridge at the turn
+double ref_v = 75; 
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -59,16 +59,16 @@ class FG_eval {
     // minimize the use of actuators
     for (unsigned int i=0; i<N-1; i++)
     {
-      fg[0] += 75*CppAD::pow(vars[delta_start+i], 2);
-      fg[0] += 15*CppAD::pow(vars[a_start+i], 2);
+      fg[0] += 25*CppAD::pow(vars[delta_start+i], 2);
+      fg[0] += 25*CppAD::pow(vars[a_start+i], 2);
       //fg[0] += 700*CppAD::pow(vars[delta_start + i] * vars[v_start+i], 2);
     }
 
     // minimize the value gap between sequential actuations
     for (unsigned int i=0; i<N-2; i++)
     {
-      fg[0] += 50*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i], 2);
-      fg[0] += 5*CppAD::pow(vars[a_start+i+1] - vars[a_start+i], 2);
+      fg[0] += 200*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i], 2); 
+      fg[0] += 20*CppAD::pow(vars[a_start+i+1] - vars[a_start+i], 2);
     }
     //
     // Setup Constraints
@@ -109,10 +109,10 @@ class FG_eval {
       // Only consider the actuation at time t.
       AD<double> delta0 = vars[delta_start + i];
       AD<double> a0 = vars[a_start + i];
-      if (i > 0) {   // use previous actuations (to account for latency)
-        a0 = vars[a_start + i - 1];
-        delta0 = vars[delta_start + i - 1];
-      }
+      //if (i > 0) {   // use previous actuations (to account for latency)
+      //  a0 = vars[a_start + i - 1];
+      //  delta0 = vars[delta_start + i - 1];
+      //}
 
       AD<double> f0 = coeffs[0] + coeffs[1]*x0 + coeffs[2]*x0*x0 + coeffs[3]*x0*x0*x0;
       AD<double> psides0 = CppAD::atan(3*coeffs[3]*x0*x0 + 2*coeffs[2]*x0 + coeffs[1]);

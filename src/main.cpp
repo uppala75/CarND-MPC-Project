@@ -98,7 +98,7 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
-          for (int i=0; i<ptsx.size(); i++)
+          for (unsigned int i=0; i<ptsx.size(); i++)
           {
             //shift car reference angle to 90 degrees
             double shift_x = ptsx[i]-px;
@@ -126,49 +126,19 @@ int main() {
 
           Eigen::VectorXd state(6);
 
-          /*
-          //previous delta and a          
-          //double previous_delta_;
-          //double previous_a_;
-          //double x_ = 0.0;
-          //double y_ = 0.0;
-          //const double Lf = 2.67;
-          //double dt = 0.1;
-          
-          for (auto i = 0; i < steer_value.size(); ++i) {
-          
-              auto a_ = throttle_value[i];
-              auto delta_ = steer_value[i];
-              previous_delta_ = delta_;
-              previous_a_ = a_;
-              
-              //if we have x, then we have correponding y, psi, v, etc
-              for (auto j = 0; j < ptrx.size(); ++j) {
-              
-                  x_ = x_ + v * cos(psi) * dt;
-                  y_ = y_ + v * sin(psi) * dt;
-                  psi = psi - v * previous_delta_ / Lf * dt;
-                  v = v + previous_a_ * dt;
-                  cte = cte + (v * sin(epsi) * dt);
-                  epsi = epsi + v * previous_delta_ / Lf * dt;
-                  
-              }
-  
-          }
-          */
           // Predict the state after latency
           double pred_x = 0;
           double pred_y = 0;
           const double dt=0.1;
           const double Lf=2.67;
-          pred_x = pred_x + v * cos(psi) * dt;
-          pred_y = pred_y + v * sin(psi) * dt;
-          double pred_psi = 0 + v * -steer_value / Lf * dt;
+          pred_x = pred_x + v * cos(0) * dt;
+          pred_y = pred_y + v * sin(0) * dt;
+          double pred_psi = 0 + v * (-steer_value/Lf) * dt;
           double pred_v = v + throttle_value * dt;
           double pred_cte = cte + (v * sin(epsi) * dt);
-          double pred_epsi = epsi + v * -steer_value / Lf * dt;
+          double pred_epsi = epsi + v * (-steer_value/Lf) * dt;
 
-          state << 0, 0, 0, pred_v, pred_cte, pred_epsi;
+          state << pred_x, pred_y, pred_psi, pred_v, pred_cte, pred_epsi;
 
           auto vars = mpc.Solve(state, coeffs);
 
@@ -190,7 +160,7 @@ int main() {
           std::vector<double> mpc_y_vals;
 
 
-          for (int i=2; i<vars.size(); i++)
+          for (unsigned int i=2; i<vars.size(); i++)
           {
             if(i%2 == 0)
             {
@@ -201,8 +171,6 @@ int main() {
               mpc_y_vals.push_back(vars[i]);  
             }
           }
-
-          //double Lf = 2.67;
 
 
           json msgJson;

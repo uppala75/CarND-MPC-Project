@@ -26,7 +26,7 @@
 
 ###Timestep Length and Elapsed Duration (N & dt):
 ---
-###I chose a timestep length (N) of 10 and elapsed duration (dt) of 0.1 for the MPC. This translates to a prediction horizon of 1 second which is a good compromise between computational resources and accuracy. We don't need a prediction horizon further than 1 second since we are not going to use those values anyway to determine the next state. The choice of 0.1 for dt results in actuations every 100ms which good enough for this exercise.
+###I chose a timestep length (N) of 10 and elapsed duration (dt) of 0.1 for the MPC. This translates to a prediction horizon of 1 second which is a good compromise between computational resources and accuracy. We don't need a prediction horizon further than 1 second since we are not going to use those values anyway to determine the next state. A higher N also adds to computational resources since more calculations need to be done if dt remains the same. The choice of 0.1 for dt results in actuations every 100ms which is good enough for this exercise. Smaller dt gives better resolution but for the speed range (targeting < 100mph) of the vehicle in this track, higher resolution than 0.1 is unnecessary. Other values tried were (N=20, dt=0.1), (N=10, dt=0.05), & (N=5, dt=0.1).
 
 ###Cost function & weights
 ---
@@ -37,7 +37,7 @@
 ###-Rate of change of steering angle & Throttle
 
 ###Our primary goal is to reduce CTE & Orientation error and I assigned high weights to these components so the solver pays more attention to reduce these error components.
-###However, we would also want to make sure that the ride is smooth and not sudden. So, I assigned weights after some trail and error to address these concerns
+###Furthermore, I wanted to make sure that the ride is smooth without sudden changes in acceleration or steering. So, I assigned weights after some trail and error to address these concerns.
 
 ###The final weights assigned were (lines 52-72 in MPC.cpp):
 
@@ -46,10 +46,10 @@
 |CTE|2000|
 |epsi|2000|
 |speed|1|
-|steering angle|75|
-|Throttle|15|
-|Rate of change of steering angle|50|
-|Rate of change of throttle|5|
+|steering angle|25|
+|Throttle|25|
+|Rate of change of steering angle|200|
+|Rate of change of throttle|20|
 
 
 ###Polynomial Fitting and MPC Preprocessing
@@ -63,7 +63,7 @@
 
 ###Results:
 ---
-###The end result can be viewed here: [video](https://youtu.be/JwyB60rVheQ). I used a reference velocity of 75mph in my solution. However, the MPC can be tuned to work at higher speeds by tuning the weights for the cost function components. 
+###The end result can be viewed here: [video](https://youtu.be/Xabr6ZLxCX8). I used a reference velocity of 75mph in my solution and the car reaches 60mph on the track. However, the MPC can be tuned to work at higher speeds by tuning the weights for the cost function components. 
 
 ##The following instructions need to be followed if you would like to run this code yourself:
 ---
