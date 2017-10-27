@@ -35,7 +35,7 @@
 #### -Rate of change of steering angle & Throttle
 
 #### Our primary goal is to reduce CTE & Orientation error and I assigned high weights to these components so the solver pays more attention to reduce these error components.
-### Furthermore, I wanted to make sure that the ride is smooth without sudden changes in acceleration or steering. So, I assigned weights after some trail and error to address these concerns.
+#### Furthermore, I wanted to make sure that the ride is smooth without sudden changes in acceleration or steering. So, I assigned weights after some trail and error to address these concerns.
 
 #### The final weights assigned were (lines 52-72 in MPC.cpp):
 
