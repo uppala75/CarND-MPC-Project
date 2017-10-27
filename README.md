@@ -1,8 +1,72 @@
-# CarND-Controls-MPC
-Self-Driving Car Engineer Nanodegree Program
+# Model Predictive Controller
 
 ---
 
+##Introduction:
+###The goal for this project is to use a Model Predictive Controller (MPC) to optimize a car's trajectory so it could navigate its way around a track in Udacity's simulator environment. 
+
+###The simulator uses a websocket to transmit the following information to the MPC: x and y waypoints, the vehicle orientation, the vehicles' global position x and y in meters, the steering angle in radians, the throttle position, and the vehicle's speed in mph.
+
+###As seen in Fig 1, the yellow line represents the waypoints from the simulator (the reference trajectory) and the green line is the best polynomial fit to the reference trajectory which is computed by the MPC.
+
+![png](./Images/YGlines.png)
+#### ->Fig 1<-
+
+
+##The Model:
+---
+![png](./Images/MPCProcess.png)
+#### ->Fig 2(Source: Udacity)<-
+
+###The state information is stored in a vector. It contains: the vehicle position (x & y coordinates), psi (orientation of the vehicle), velocity (v), Cross Track Error (CTE), and psi error (epsi) which is the difference between the predicted orientation of the vehicle and the orientation of the MPC's trajectory. 
+
+###The actuator information is also stored in a vector which contains the steering angle (psi), & throttle/brake information. The steering angle is limited to -25 to 25 degrees, whereas the throttle/brake is limited to -1 to +1. A negative throttle value indicates breaking whereas a positive value indicates acceleration.
+
+###As shown in Figure 2, the current state is first passed to the MPC. The optimization solver (IPOPT solver was used) is then called which in turn uses the initial state, the model update equations, constraints, and the cost function to return a vector with control inputs that minimizes the cost function. The first control input is applied to the vehicle and the vehicle proceeds to the next state. This process is repeated in a loop.
+
+###Timestep Length and Elapsed Duration (N & dt):
+---
+###I chose a timestep length (N) of 10 and elapsed duration (dt) of 0.1 for the MPC. This translates to a prediction horizon of 1 second which is a good compromise between computational resources and accuracy. We don't need a prediction horizon further than 1 second since we are not going to use those values anyway to determine the next state. The choice of 0.1 for dt results in actuations every 100ms which good enough for this exercise.
+
+###Cost function & weights
+---
+###The cost function is the sum of the following integrated over all the timesteps and the goal is to minimize this:
+###-CTE
+###-Orientation error
+###-Steering angle & Throttle
+###-Rate of change of steering angle & Throttle
+
+###Our primary goal is to reduce CTE & Orientation error and I assigned high weights to these components so the solver pays more attention to reduce these error components.
+###However, we would also want to make sure that the ride is smooth and not sudden. So, I assigned weights after some trail and error to address these concerns
+
+###The final weights assigned were (lines 52-72 in MPC.cpp):
+
+|          Cost Component          |    Weight    |
+|:--------------------------------:|:------------:|
+|CTE|2000|
+|epsi|2000|
+|speed|1|
+|steering angle|75|
+|Throttle|15|
+|Rate of change of steering angle|50|
+|Rate of change of throttle|5|
+
+
+###Polynomial Fitting and MPC Preprocessing
+---
+###The waypoints were transformed into the vehicle's local coordinate system (lines 101-109: main.cpp). I used a 3rd order polynomial to fit the reference trajectory as it is a good approximation for most roads.
+
+
+###Model Predictive Control with Latency:
+---
+###To address the latency (caused by the response delay of the system in implementing the commands) of the kinematic model which is 100ms, I predicted the latency 100ms ahead of time using the current state as shown in lines 129-139 (main.cpp), before feeding the current state to the solver to predict the next state.
+
+###Results:
+---
+###The end result can be viewed here: [video](https://youtu.be/JwyB60rVheQ). I used a reference velocity of 75mph in my solution. However, the MPC can be tuned to work at higher speeds by tuning the weights for the cost function components. 
+
+##The following instructions need to be followed if you would like to run this code yourself:
+---
 ## Dependencies
 
 * cmake >= 3.5
